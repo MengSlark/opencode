@@ -22,6 +22,8 @@ export const ReadTool = Tool.define("read", {
     limit: z.coerce.number().describe("The number of lines to read (defaults to 2000)").optional(),
   }),
   async execute(params, ctx) {
+    console.log("ReadTool called with params:")
+    debugger;
     let filepath = params.filePath
     if (!path.isAbsolute(filepath)) {
       filepath = path.resolve(Instance.directory, filepath)

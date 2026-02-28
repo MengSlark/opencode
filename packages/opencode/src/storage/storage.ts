@@ -1,4 +1,4 @@
-import { Log } from "../util/log"
+﻿import { Log } from "../util/log"
 import path from "path"
 import fs from "fs/promises"
 import { Global } from "../global"
@@ -21,7 +21,21 @@ export namespace Storage {
     }),
   )
 
+  /**
+   * 历史迁移任务列表（按顺序执行）。
+   *
+   * 迁移状态保存在 `<storage>/migration` 文件中：
+   * - 值为 0：表示未执行任何迁移
+   * - 值为 N：表示 [0, N) 都已执行完成
+   */
   const MIGRATIONS: Migration[] = [
+    /**
+     * 迁移 #0
+     *
+     * 目标：把旧版目录结构的数据迁移到当前结构。
+     * 旧结构中的 session/message/part 数据位于 project 目录下，
+     * 新结构统一写入 `<storage>/session|message|part`。
+     */
     async (dir) => {
       const project = path.resolve(dir, "../project")
       if (!(await Filesystem.isDir(project))) return
@@ -35,6 +49,7 @@ export namespace Storage {
         let worktree = "/"
 
         if (projectID !== "global") {
+          // 从历史消息中尽力推断 worktree 根目录。
           for await (const msgFile of new Bun.Glob("storage/session/message/*/*.json").scan({
             cwd: path.join(project, projectDir),
             absolute: true,
@@ -45,6 +60,8 @@ export namespace Storage {
           }
           if (!worktree) continue
           if (!(await Filesystem.isDir(worktree))) continue
+
+          // Git 项目使用首个 commit 作为稳定 projectID。
           const [id] = await $`git rev-list --max-parents=0 --all`
             .quiet()
             .nothrow()
@@ -118,6 +135,12 @@ export namespace Storage {
         }
       }
     },
+    /**
+     * 迁移 #1
+     *
+     * 目标：将历史 session.summary.diffs 拆分到独立文件 `session_diff/<sessionID>.json`，
+     * 并把 summary 压缩为 additions/deletions 聚合值。
+     */
     async (dir) => {
       for await (const item of new Bun.Glob("session/*/*.json").scan({
         cwd: dir,
@@ -141,8 +164,17 @@ export namespace Storage {
     },
   ]
 
+  /**
+   * 懒加载存储目录状态。
+   *
+   * 首次调用时会：
+   * 1. 计算 storage 目录
+   * 2. 读取 migration 进度
+   * 3. 依次补跑剩余迁移
+   */
   const state = lazy(async () => {
     const dir = path.join(Global.Path.data, "storage")
+    console.log("Global.Path.data:", Global.Path.data)
     const migration = await Bun.file(path.join(dir, "migration"))
       .json()
       .then((x) => parseInt(x))
@@ -158,6 +190,12 @@ export namespace Storage {
     }
   })
 
+  /**
+   * 删除指定资源。
+   *
+   * key 会被映射为 `<storage>/<...key>.json`。
+   * 若目标不存在，删除操作会静默忽略。
+   */
   export async function remove(key: string[]) {
     const dir = await state().then((x) => x.dir)
     const target = path.join(dir, ...key) + ".json"
@@ -166,6 +204,12 @@ export namespace Storage {
     })
   }
 
+  /**
+   * 读取指定资源。
+   *
+   * - 使用读锁，避免并发写入期间读取到不一致内容
+   * - 调用方通过泛型 T 声明期望返回类型
+   */
   export async function read<T>(key: string[]) {
     const dir = await state().then((x) => x.dir)
     const target = path.join(dir, ...key) + ".json"
@@ -176,6 +220,12 @@ export namespace Storage {
     })
   }
 
+  /**
+   * 更新指定资源。
+   *
+   * - 使用写锁保证原子读改写
+   * - 先读取原对象，再调用 fn(draft) 原地修改，最后覆盖写回
+   */
   export async function update<T>(key: string[], fn: (draft: T) => void) {
     const dir = await state().then((x) => x.dir)
     const target = path.join(dir, ...key) + ".json"
@@ -188,6 +238,12 @@ export namespace Storage {
     })
   }
 
+  /**
+   * 写入指定资源（覆盖写）。
+   *
+   * - 使用写锁避免并发写冲突
+   * - 统一使用 2 空格缩进，便于排障与审阅
+   */
   export async function write<T>(key: string[], content: T) {
     const dir = await state().then((x) => x.dir)
     const target = path.join(dir, ...key) + ".json"
@@ -197,6 +253,12 @@ export namespace Storage {
     })
   }
 
+  /**
+   * 统一错误包装。
+   *
+   * 将底层 ENOENT 映射为 Storage.NotFoundError，
+   * 便于上层统一处理“资源不存在”语义。
+   */
   async function withErrorHandling<T>(body: () => Promise<T>) {
     return body().catch((e) => {
       if (!(e instanceof Error)) throw e
@@ -209,6 +271,14 @@ export namespace Storage {
   }
 
   const glob = new Bun.Glob("**/*")
+
+  /**
+   * 列出 prefix 下的所有资源 key。
+   *
+   * 返回值示例：
+   * - 输入 prefix = ["session", "project-id"]
+   * - 返回 [["session", "project-id", "session-1"], ...]
+   */
   export async function list(prefix: string[]) {
     const dir = await state().then((x) => x.dir)
     try {

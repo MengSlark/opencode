@@ -267,6 +267,11 @@ export namespace SessionPrompt {
   export const loop = fn(LoopInput, async (input) => {
     const { sessionID, resume_existing } = input
 
+    // `loop` 保证同一个 session 同时只有一个活跃 worker。
+    // - `start(sessionID)`：启动新的 worker，并返回该 worker 的 abort signal。
+    // - `resume(sessionID)`：复用已存在 worker 的 abort signal（用于恢复）。
+    // 若这里拿不到 signal，说明已有 worker 正在处理；当前调用不再重复执行，
+    // 而是把回调挂到队列里，等待现有 worker 产出最终 assistant 消息后统一返回。
     const abort = resume_existing ? resume(sessionID) : start(sessionID)
     if (!abort) {
       return new Promise<MessageV2.WithParts>((resolve, reject) => {
@@ -280,6 +285,11 @@ export namespace SessionPrompt {
     let step = 0
     const session = await Session.get(sessionID)
     while (true) {
+      // 主循环每一轮的职责：
+      // 1) 读取并分析最新消息状态；
+      // 2) 优先处理待执行的内部任务（subtask / compaction）；
+      // 3) 若无内部任务，则执行一次 assistant 推理；
+      // 4) 直到被中止，或出现可结束的 assistant finish 状态。
       SessionStatus.set(sessionID, { type: "busy" })
       log.info("loop", { step, sessionID })
       if (abort.aborted) break
@@ -303,6 +313,10 @@ export namespace SessionPrompt {
       }
 
       if (!lastUser) throw new Error("No user message found in stream. This should never happen.")
+      // 如果最新 assistant 已经对“当前最新 user 回合”给出终态 finish，则直接退出。
+      // `tool-calls` / `unknown` 不是终态，仍需继续循环：
+      // - `tool-calls` 需要继续执行工具并推进状态；
+      // - `unknown` 需要继续恢复/补全流程。
       if (
         lastAssistant?.finish &&
         !["tool-calls", "unknown"].includes(lastAssistant.finish) &&
@@ -335,7 +349,9 @@ export namespace SessionPrompt {
       })
       const task = tasks.pop()
 
-      // pending subtask
+      // 待处理 subtask：
+      // 先执行内部 `task` 工具，把结果写回消息流；
+      // 然后回到外层循环，让下一次 assistant step 消费这次工具输出。
       // TODO: centralize "invoke tool" logic
       if (task?.type === "subtask") {
         const taskTool = await TaskTool.init()
@@ -479,9 +495,9 @@ export namespace SessionPrompt {
         }
 
         if (task.command) {
-          // Add synthetic user message to prevent certain reasoning models from erroring
-          // If we create assistant messages w/ out user ones following mid loop thinking signatures
-          // will be missing and it can cause errors for models like gemini for example
+          // 插入一条 synthetic user 消息，避免部分推理模型报错。
+          // 场景：循环中若连续写 assistant 而后面没有 user，
+          // 某些模型（例如 Gemini）可能因中间推理签名不完整而失败。
           const summaryUserMsg: MessageV2.User = {
             id: Identifier.ascending("message"),
             sessionID,
@@ -506,7 +522,9 @@ export namespace SessionPrompt {
         continue
       }
 
-      // pending compaction
+      // 待处理 compaction 任务（由消息 part 显式排队）。
+      // 若 compaction 返回 stop，则终止循环；
+      // 否则继续下一轮，并重新评估消息状态。
       if (task?.type === "compaction") {
         const result = await SessionCompaction.process({
           messages: msgs,
@@ -519,7 +537,8 @@ export namespace SessionPrompt {
         continue
       }
 
-      // context overflow, needs compaction
+      // 当前无显式任务时，检查上一条已完成 assistant 的 token 是否溢出。
+      // 若溢出，则自动创建一次 compaction，并在下一轮重试。
       if (
         lastFinished &&
         lastFinished.summary !== true &&
@@ -534,7 +553,9 @@ export namespace SessionPrompt {
         continue
       }
 
-      // normal processing
+      // 常规 assistant 执行分支：
+      // 组装运行时上下文（agent/tools/messages/system prompt），
+      // 创建 assistant 消息壳，然后执行一次模型调用并流式处理结果。
       const agent = await Agent.get(lastUser.agent)
       const maxSteps = agent.steps ?? Infinity
       const isLastStep = step >= maxSteps
@@ -576,7 +597,7 @@ export namespace SessionPrompt {
       })
       using _ = defer(() => InstructionPrompt.clear(processor.message.id))
 
-      // Check if user explicitly invoked an agent via @ in this turn
+      // 检查本轮用户是否通过 `@` 显式指定了 agent。
       const lastUserMsg = msgs.findLast((m) => m.info.role === "user")
       const bypassAgentCheck = lastUserMsg?.parts.some((p) => p.type === "agent") ?? false
 
@@ -599,7 +620,7 @@ export namespace SessionPrompt {
 
       const sessionMessages = clone(msgs)
 
-      // Ephemerally wrap queued user messages with a reminder to stay on track
+      // 对“上一轮完成后新进入队列的 user 消息”做临时包装提醒，降低跑题概率。
       if (step > 1 && lastFinished) {
         for (const msg of sessionMessages) {
           if (msg.info.role !== "user" || msg.info.id <= lastFinished.id) continue
@@ -651,6 +672,9 @@ export namespace SessionPrompt {
       }
       continue
     }
+    // 循环结束后的收尾：
+    // 1) 清理 compaction 临时产物；
+    // 2) 用最新 assistant 消息唤醒并 resolve 所有等待中的并发调用。
     SessionCompaction.prune({ sessionID })
     for await (const item of MessageV2.stream(sessionID)) {
       if (item.info.role === "user") continue

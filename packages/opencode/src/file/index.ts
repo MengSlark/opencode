@@ -429,6 +429,7 @@ export namespace File {
     const project = Instance.project
     const full = path.join(Instance.directory, file)
 
+    console.log("Attempting to read file:", full)
     // TODO: Filesystem.contains is lexical only - symlinks inside the project can escape.
     // TODO: On Windows, cross-drive paths bypass this check. Consider realpath canonicalization.
     if (!Instance.containsPath(full)) {

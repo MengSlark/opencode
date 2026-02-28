@@ -1,0 +1,147 @@
+﻿@baseUrl = http://127.0.0.1:4096
+@projectDir = d:/workspace/github/opencode
+@sessionID = ses_35d34ccf3ffeChOeDf5wTTzi4e
+@messageID = msg_ca2cb3313001pNcRZ3tFHD5bvv
+@partID = prt_ca2cb3313002VAW70cIB25L0zO
+
+### Session: create
+POST {{baseUrl}}/session
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "title": "demo session"
+}
+
+### Session: list
+GET {{baseUrl}}/session?limit=20&roots=true
+x-opencode-directory: {{projectDir}}
+
+### Session: get
+GET {{baseUrl}}/session/{{sessionID}}
+x-opencode-directory: {{projectDir}}
+
+### Session: update title
+PATCH {{baseUrl}}/session/{{sessionID}}
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "title": "renamed session"
+}
+
+### Session: status
+GET {{baseUrl}}/session/status
+x-opencode-directory: {{projectDir}}
+
+### Session: send prompt (sync)
+POST {{baseUrl}}/session/{{sessionID}}/message
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "agent": "build",
+  "parts": [
+    {
+      "type": "text",
+      "text": "Please read packages/opencode/src/storage/storage.ts and summarize it."
+    }
+  ]
+}
+
+### Session: send prompt (async)
+POST {{baseUrl}}/session/{{sessionID}}/prompt_async
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "agent": "build",
+  "parts": [
+    {
+      "type": "text",
+      "text": "Run this asynchronously."
+    }
+  ]
+}
+
+### Session: messages
+GET {{baseUrl}}/session/{{sessionID}}/message?limit=50
+x-opencode-directory: {{projectDir}}
+
+### Session: single message
+GET {{baseUrl}}/session/{{sessionID}}/message/{{messageID}}
+x-opencode-directory: {{projectDir}}
+
+### Session: command
+POST {{baseUrl}}/session/{{sessionID}}/command
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "command": "fix",
+  "arguments": "Fix read tool breakpoint issue"
+}
+
+### Session: shell
+POST {{baseUrl}}/session/{{sessionID}}/shell
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "agent": "build",
+  "command": "git status"
+}
+
+### Session: summarize
+POST {{baseUrl}}/session/{{sessionID}}/summarize
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "providerID": " OpenCode Zen",
+  "modelID": "Big Pickle"
+}
+
+### Session: diff (requires messageID)
+GET {{baseUrl}}/session/{{sessionID}}/diff?messageID={{messageID}}
+x-opencode-directory: {{projectDir}}
+
+### Session: fork
+POST {{baseUrl}}/session/{{sessionID}}/fork
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{}
+
+### Session: share
+POST {{baseUrl}}/session/{{sessionID}}/share
+x-opencode-directory: {{projectDir}}
+
+### Session: unshare
+DELETE {{baseUrl}}/session/{{sessionID}}/share
+x-opencode-directory: {{projectDir}}
+
+### Session: abort
+POST {{baseUrl}}/session/{{sessionID}}/abort
+x-opencode-directory: {{projectDir}}
+
+### Session: delete part
+DELETE {{baseUrl}}/session/{{sessionID}}/message/{{messageID}}/part/{{partID}}
+x-opencode-directory: {{projectDir}}
+
+### Session: update part
+PATCH {{baseUrl}}/session/{{sessionID}}/message/{{messageID}}/part/{{partID}}
+Content-Type: application/json
+x-opencode-directory: {{projectDir}}
+
+{
+  "id": "{{partID}}",
+  "sessionID": "{{sessionID}}",
+  "messageID": "{{messageID}}",
+  "type": "text",
+  "text": "updated content"
+}
+
+### Session: delete
+DELETE {{baseUrl}}/session/{{sessionID}}
+x-opencode-directory: {{projectDir}}
