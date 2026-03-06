@@ -62,7 +62,7 @@ export namespace Tool {
               throw new Error(toolInfo.formatValidationError(error), { cause: error })
             }
             throw new Error(
-              `The ${id} tool was called with invalid arguments: ${error}.\nPlease rewrite the input so it satisfies the expected schema.`,
+              `工具 ${id} 被传入了无效参数：${error}。请按预期 schema 重新填写输入。`,
               { cause: error },
             )
           }

@@ -27,10 +27,10 @@ function normalizeLineEndings(text: string): string {
 export const EditTool = Tool.define("edit", {
   description: DESCRIPTION,
   parameters: z.object({
-    filePath: z.string().describe("The absolute path to the file to modify"),
-    oldString: z.string().describe("The text to replace"),
-    newString: z.string().describe("The text to replace it with (must be different from oldString)"),
-    replaceAll: z.boolean().optional().describe("Replace all occurrences of oldString (default false)"),
+    filePath: z.string().describe("要修改文件的绝对路径"),
+    oldString: z.string().describe("要被替换的文本"),
+    newString: z.string().describe("用于替换的文本（必须与 oldString 不同）"),
+    replaceAll: z.boolean().optional().describe("是否替换所有 oldString 出现处（默认 false）"),
   }),
   async execute(params, ctx) {
     if (!params.filePath) {

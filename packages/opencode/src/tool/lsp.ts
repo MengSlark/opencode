@@ -22,10 +22,10 @@ const operations = [
 export const LspTool = Tool.define("lsp", {
   description: DESCRIPTION,
   parameters: z.object({
-    operation: z.enum(operations).describe("The LSP operation to perform"),
-    filePath: z.string().describe("The absolute or relative path to the file"),
-    line: z.number().int().min(1).describe("The line number (1-based, as shown in editors)"),
-    character: z.number().int().min(1).describe("The character offset (1-based, as shown in editors)"),
+    operation: z.enum(operations).describe("要执行的 LSP 操作"),
+    filePath: z.string().describe("文件的绝对或相对路径"),
+    line: z.number().int().min(1).describe("行号（从 1 开始，与编辑器一致）"),
+    character: z.number().int().min(1).describe("字符偏移（从 1 开始，与编辑器一致）"),
   }),
   execute: async (args, ctx) => {
     const file = path.isAbsolute(args.filePath) ? args.filePath : path.join(Instance.directory, args.filePath)

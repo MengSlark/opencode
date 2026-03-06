@@ -1,41 +1,40 @@
-This is a tool for making multiple edits to a single file in one operation. It is built on top of the Edit tool and allows you to perform multiple find-and-replace operations efficiently. Prefer this tool over the Edit tool when you need to make multiple edits to the same file.
+在单次操作中对同一文件进行多处编辑。基于 Edit 工具，可高效执行多次查找替换。当需要对同一文件做多处修改时，请优先使用本工具而非 Edit。
 
-Before using this tool:
+使用前：
+1. 使用 Read 工具了解文件内容与上下文
+2. 确认目录路径正确
 
-1. Use the Read tool to understand the file's contents and context
-2. Verify the directory path is correct
+要进行多处编辑，请提供：
+1. file_path：要修改文件的绝对路径（必须为绝对路径，不能为相对路径）
+2. edits：要执行的编辑操作数组，每项包含：
+   - oldString：要替换的文本（必须与文件内容完全一致，包括空格与缩进）
+   - newString：用于替换 oldString 的新文本
+   - replaceAll：是否替换所有 oldString 出现处。可选，默认 false。
 
-To make multiple file edits, provide the following:
-1. file_path: The absolute path to the file to modify (must be absolute, not relative)
-2. edits: An array of edit operations to perform, where each edit contains:
-   - oldString: The text to replace (must match the file contents exactly, including all whitespace and indentation)
-   - newString: The edited text to replace the oldString
-   - replaceAll: Replace all occurrences of oldString. This parameter is optional and defaults to false.
+重要：
+- 所有编辑按提供顺序依次执行
+- 每一项编辑基于前一项的结果
+- 所有编辑均有效时才会成功，任一项失败则全部不生效
+- 适合对同一文件多处不同位置进行多次修改
 
-IMPORTANT:
-- All edits are applied in sequence, in the order they are provided
-- Each edit operates on the result of the previous edit
-- All edits must be valid for the operation to succeed - if any edit fails, none will be applied
-- This tool is ideal when you need to make several changes to different parts of the same file
+关键要求：
+1. 每项编辑均需满足单次 Edit 工具的相同要求
+2. 编辑具有原子性：要么全部成功，要么全部不生效
+3. 仔细规划编辑顺序，避免前后操作冲突
 
-CRITICAL REQUIREMENTS:
-1. All edits follow the same requirements as the single Edit tool
-2. The edits are atomic - either all succeed or none are applied
-3. Plan your edits carefully to avoid conflicts between sequential operations
+注意：
+- 若 edits.oldString 与文件内容不完全一致（含空格），工具会失败
+- 若 edits.oldString 与 edits.newString 相同，工具会失败
+- 因编辑按顺序执行，请确保前面的编辑不会破坏后面编辑要查找的文本
 
-WARNING:
-- The tool will fail if edits.oldString doesn't match the file contents exactly (including whitespace)
-- The tool will fail if edits.oldString and edits.newString are the same
-- Since edits are applied in sequence, ensure that earlier edits don't affect the text that later edits are trying to find
+编辑时：
+- 确保结果代码地道、正确
+- 不要留下无法通过编译或运行的代码
+- 始终使用绝对路径（以 / 开头）
+- 仅当用户明确要求时使用 emoji，否则不要添加
+- 跨文件替换/重命名时使用 replaceAll
 
-When making edits:
-- Ensure all edits result in idiomatic, correct code
-- Do not leave the code in a broken state
-- Always use absolute file paths (starting with /)
-- Only use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.
-- Use replaceAll for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.
-
-If you want to create a new file, use:
-- A new file path, including dir name if needed
-- First edit: empty oldString and the new file's contents as newString
-- Subsequent edits: normal edit operations on the created content
+若要创建新文件：
+- 使用新文件路径（含目录名）
+- 第一项编辑：oldString 为空，newString 为新文件完整内容
+- 后续编辑：对已创建内容进行正常编辑

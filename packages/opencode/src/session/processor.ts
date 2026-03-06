@@ -20,6 +20,79 @@ export namespace SessionProcessor {
   const DOOM_LOOP_THRESHOLD = 3
   const log = Log.create({ service: "session.processor" })
 
+  /**
+   * 日志输出模型流式返回的每个事件，便于排查与观察。对 text-delta/reasoning-delta 只打长度等摘要，避免刷屏。
+   */
+  function logModelStreamValue(value: Record<string, unknown> & { type: string }) {
+    const payload: Record<string, unknown> = { type: value.type }
+    switch (value.type) {
+      case "text-delta":
+        payload.id = value.id
+        payload.textLength = typeof value.text === "string" ? value.text.length : 0
+        if (typeof value.text === "string" && value.text.length <= 200) payload.text = value.text
+        break
+      case "reasoning-delta":
+        payload.id = value.id
+        payload.textLength = typeof value.text === "string" ? value.text.length : 0
+        break
+      case "tool-call":
+        payload.toolName = value.toolName
+        payload.toolCallId = value.toolCallId
+        payload.input = value.input
+        break
+      case "tool-result":
+        payload.toolCallId = value.toolCallId
+        const out = (value as any).output
+        if (out != null) {
+          payload.outputType = typeof out.output
+          if (typeof out.output === "string") payload.outputLength = out.output.length
+        }
+        break
+      case "tool-error":
+        payload.toolCallId = value.toolCallId
+        payload.error = value.error != null ? String((value as any).error) : undefined
+        break
+      case "finish-step":
+        payload.finishReason = value.finishReason
+        payload.usage = value.usage
+        payload.providerMetadata = value.providerMetadata
+        break
+      case "finish":
+        payload.finishReason = value.finishReason
+        payload.totalUsage = value.totalUsage
+        break
+      case "start-step":
+        payload.request = value.request
+        payload.warnings = value.warnings
+        break
+      case "error":
+        payload.error = value.error
+        break
+      case "text-start":
+      case "text-end":
+      case "reasoning-start":
+      case "reasoning-end":
+      case "tool-input-start":
+      case "tool-input-end":
+        payload.id = value.id
+        if (value.toolName != null) payload.toolName = value.toolName
+        break
+      case "tool-input-delta":
+        payload.id = value.id
+        payload.deltaLength = typeof (value as any).delta === "string" ? (value as any).delta.length : 0
+        break
+      case "source":
+      case "file":
+        payload.detail = value
+        break
+      case "abort":
+        break
+      default:
+        payload.raw = value
+    }
+    log.info("model.stream", payload)
+  }
+
   export type Info = Awaited<ReturnType<typeof create>>
   export type Result = Awaited<ReturnType<Info["process"]>>
 
@@ -43,7 +116,7 @@ export namespace SessionProcessor {
         return toolcalls[toolCallID]
       },
       async process(streamInput: LLM.StreamInput) {
-        log.info("process")
+        log.info("模型输入", { ...streamInput })
         needsCompaction = false
         const shouldBreak = (await Config.get()).experimental?.continue_loop_on_deny !== true
         while (true) {
@@ -54,6 +127,7 @@ export namespace SessionProcessor {
 
             for await (const value of stream.fullStream) {
               input.abort.throwIfAborted()
+              log.info("模型输出 ", value)
               switch (value.type) {
                 case "start":
                   SessionStatus.set(input.sessionID, { type: "busy" })

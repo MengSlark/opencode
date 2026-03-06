@@ -15,7 +15,7 @@ import DESCRIPTION from "./apply_patch.txt"
 import { File } from "../file"
 
 const PatchParams = z.object({
-  patchText: z.string().describe("The full patch text that describes all changes to be made"),
+  patchText: z.string().describe("描述所有要做的变更的完整补丁文本"),
 })
 
 export const ApplyPatchTool = Tool.define("apply_patch", {

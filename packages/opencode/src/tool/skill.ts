@@ -21,18 +21,18 @@ export const SkillTool = Tool.define("skill", async (ctx) => {
 
   const description =
     accessibleSkills.length === 0
-      ? "Load a specialized skill that provides domain-specific instructions and workflows. No skills are currently available."
+      ? "加载提供领域专用指令与工作流的技能。当前没有可用技能。"
       : [
-          "Load a specialized skill that provides domain-specific instructions and workflows.",
+          "加载提供领域专用指令与工作流的技能。",
           "",
-          "When you recognize that a task matches one of the available skills listed below, use this tool to load the full skill instructions.",
+          "当识别到任务与下方列出的某项可用技能匹配时，使用本工具加载该技能的完整指令。",
           "",
-          "The skill will inject detailed instructions, workflows, and access to bundled resources (scripts, references, templates) into the conversation context.",
+          "技能会将详细指令、工作流及捆绑资源（脚本、参考、模板）注入会话上下文。",
           "",
-          'Tool output includes a `<skill_content name="...">` block with the loaded content.',
+          '工具输出包含 `<skill_content name="...">` 块，其中为加载的内容。',
           "",
-          "The following skills provide specialized sets of instructions for particular tasks",
-          "Invoke this tool to load a skill when a task matches one of the available skills listed below:",
+          "以下技能为特定任务提供专用指令集。",
+          "当任务与下列可用技能之一匹配时，调用本工具加载该技能：",
           "",
           "<available_skills>",
           ...accessibleSkills.flatMap((skill) => [
@@ -49,10 +49,10 @@ export const SkillTool = Tool.define("skill", async (ctx) => {
     .map((skill) => `'${skill.name}'`)
     .slice(0, 3)
     .join(", ")
-  const hint = examples.length > 0 ? ` (e.g., ${examples}, ...)` : ""
+  const hint = examples.length > 0 ? `（例如 ${examples} 等）` : ""
 
   const parameters = z.object({
-    name: z.string().describe(`The name of the skill from available_skills${hint}`),
+    name: z.string().describe(`从 available_skills 中选择的技能名称${hint}`),
   })
 
   return {

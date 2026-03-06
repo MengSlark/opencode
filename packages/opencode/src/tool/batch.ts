@@ -12,12 +12,12 @@ export const BatchTool = Tool.define("batch", async () => {
       tool_calls: z
         .array(
           z.object({
-            tool: z.string().describe("The name of the tool to execute"),
-            parameters: z.object({}).loose().describe("Parameters for the tool"),
+            tool: z.string().describe("要执行的工具名称"),
+            parameters: z.object({}).loose().describe("该工具的参数"),
           }),
         )
-        .min(1, "Provide at least one tool call")
-        .describe("Array of tool calls to execute in parallel"),
+        .min(1, "请至少提供一次工具调用")
+        .describe("要并发执行的工具调用数组"),
     }),
     formatValidationError(error) {
       const formattedErrors = error.issues

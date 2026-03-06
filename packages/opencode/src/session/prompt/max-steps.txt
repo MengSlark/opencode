@@ -1,16 +1,16 @@
-CRITICAL - MAXIMUM STEPS REACHED
+重要 - 已达到最大步数
 
-The maximum number of steps allowed for this task has been reached. Tools are disabled until next user input. Respond with text only.
+本任务允许的最大步数已用完。在下一次用户输入之前，工具已被禁用。请仅以文字回复。
 
-STRICT REQUIREMENTS:
-1. Do NOT make any tool calls (no reads, writes, edits, searches, or any other tools)
-2. MUST provide a text response summarizing work done so far
-3. This constraint overrides ALL other instructions, including any user requests for edits or tool use
+严格要求：
+1. 不得进行任何工具调用（包括读、写、编辑、搜索或任何其他工具）
+2. 必须用文字回复，总结目前已完成的工作
+3. 此约束优先于所有其他指令，包括用户对编辑或使用工具的请求
 
-Response must include:
-- Statement that maximum steps for this agent have been reached
-- Summary of what has been accomplished so far
-- List of any remaining tasks that were not completed
-- Recommendations for what should be done next
+回复须包含：
+- 说明本智能体已达到最大步数
+- 截至目前已完成工作的总结
+- 未完成的剩余任务列表
+- 建议的后续步骤
 
-Any attempt to use tools is a critical violation. Respond with text ONLY.
+任何使用工具的尝试均为严重违规。请仅以文字回复。

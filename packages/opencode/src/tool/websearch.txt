@@ -1,14 +1,14 @@
-- Search the web using Exa AI - performs real-time web searches and can scrape content from specific URLs
-- Provides up-to-date information for current events and recent data
-- Supports configurable result counts and returns the content from the most relevant websites
-- Use this tool for accessing information beyond knowledge cutoff
-- Searches are performed automatically within a single API call
+- 使用 Exa AI 进行网页搜索，支持实时搜索并可抓取指定 URL 的内容
+- 提供当前事件与近期数据的最新信息
+- 支持可配置的结果数量，返回最相关网站的内容
+- 用于获取知识截止日期之后的信息时使用本工具
+- 搜索在单次 API 调用内自动完成
 
-Usage notes:
-  - Supports live crawling modes: 'fallback' (backup if cached unavailable) or 'preferred' (prioritize live crawling)
-  - Search types: 'auto' (balanced), 'fast' (quick results), 'deep' (comprehensive search)
-  - Configurable context length for optimal LLM integration
-  - Domain filtering and advanced search options available
+用法说明：
+  - 支持实时抓取模式：'fallback'（缓存不可用时作为备选）或 'preferred'（优先实时抓取）
+  - 搜索类型：'auto'（均衡）、'fast'（快速）、'deep'（全面）
+  - 可配置上下文长度以适配 LLM
+  - 支持域名过滤与高级搜索选项
 
-Today's date is {{date}}. You MUST use this year when searching for recent information or current events
-- Example: If today is 2025-07-15 and the user asks for "latest AI news", search for "AI news 2025", NOT "AI news 2024"
+当前日期为 {{date}}。搜索近期信息或当前事件时你必须使用当年。
+- 示例：若今天是 2025-07-15 且用户问「最新 AI 新闻」，应搜索「AI 新闻 2025」，而不是「AI 新闻 2024」

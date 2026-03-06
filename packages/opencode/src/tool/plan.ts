@@ -27,12 +27,12 @@ export const PlanExitTool = Tool.define("plan_exit", {
       sessionID: ctx.sessionID,
       questions: [
         {
-          question: `Plan at ${plan} is complete. Would you like to switch to the build agent and start implementing?`,
-          header: "Build Agent",
+          question: `计划文件 ${plan} 已完成。是否切换到 build 智能体并开始执行？`,
+          header: "Build 智能体",
           custom: false,
           options: [
-            { label: "Yes", description: "Switch to build agent and start implementing the plan" },
-            { label: "No", description: "Stay with plan agent to continue refining the plan" },
+            { label: "是", description: "切换到 build 智能体并开始执行计划" },
+            { label: "否", description: "继续使用 plan 智能体完善计划" },
           ],
         },
       ],
@@ -40,7 +40,7 @@ export const PlanExitTool = Tool.define("plan_exit", {
     })
 
     const answer = answers[0]?.[0]
-    if (answer === "No") throw new Question.RejectedError()
+    if (answer === "否") throw new Question.RejectedError()
 
     const model = await getLastModel(ctx.sessionID)
 
@@ -60,13 +60,13 @@ export const PlanExitTool = Tool.define("plan_exit", {
       messageID: userMsg.id,
       sessionID: ctx.sessionID,
       type: "text",
-      text: `The plan at ${plan} has been approved, you can now edit files. Execute the plan`,
+      text: `计划 ${plan} 已通过，可以开始编辑文件并执行计划`,
       synthetic: true,
     } satisfies MessageV2.TextPart)
 
     return {
-      title: "Switching to build agent",
-      output: "User approved switching to build agent. Wait for further instructions.",
+      title: "切换到 build 智能体",
+      output: "用户已同意切换到 build 智能体，请等待后续指令。",
       metadata: {},
     }
   },
@@ -83,12 +83,12 @@ export const PlanEnterTool = Tool.define("plan_enter", {
       sessionID: ctx.sessionID,
       questions: [
         {
-          question: `Would you like to switch to the plan agent and create a plan saved to ${plan}?`,
-          header: "Plan Mode",
+          question: `是否切换到 plan 智能体并创建计划，保存到 ${plan}？`,
+          header: "计划模式",
           custom: false,
           options: [
-            { label: "Yes", description: "Switch to plan agent for research and planning" },
-            { label: "No", description: "Stay with build agent to continue making changes" },
+            { label: "是", description: "切换到 plan 智能体进行调研与规划" },
+            { label: "否", description: "继续使用 build 智能体进行修改" },
           ],
         },
       ],
@@ -97,7 +97,7 @@ export const PlanEnterTool = Tool.define("plan_enter", {
 
     const answer = answers[0]?.[0]
 
-    if (answer === "No") throw new Question.RejectedError()
+    if (answer === "否") throw new Question.RejectedError()
 
     const model = await getLastModel(ctx.sessionID)
 
@@ -117,13 +117,13 @@ export const PlanEnterTool = Tool.define("plan_enter", {
       messageID: userMsg.id,
       sessionID: ctx.sessionID,
       type: "text",
-      text: "User has requested to enter plan mode. Switch to plan mode and begin planning.",
+      text: "用户已请求进入计划模式。请切换到计划模式并开始规划。",
       synthetic: true,
     } satisfies MessageV2.TextPart)
 
     return {
-      title: "Switching to plan agent",
-      output: `User confirmed to switch to plan mode. A new message has been created to switch you to plan mode. The plan file will be at ${plan}. Begin planning.`,
+      title: "切换到 plan 智能体",
+      output: `用户已确认进入计划模式。已创建新消息以将你切换到计划模式，计划文件将位于 ${plan}。请开始规划。`,
       metadata: {},
     }
   },

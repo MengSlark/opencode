@@ -39,7 +39,7 @@ export const CodeSearchTool = Tool.define("codesearch", {
     query: z
       .string()
       .describe(
-        "Search query to find relevant context for APIs, Libraries, and SDKs. For example, 'React useState hook examples', 'Python pandas dataframe filtering', 'Express.js middleware', 'Next js partial prerendering configuration'",
+        "用于查找 API、库、SDK 相关上下文的搜索查询。例如：'React useState 示例'、'Python pandas 筛选'、'Express.js 中间件'、'Next.js 部分预渲染配置'",
       ),
     tokensNum: z
       .number()
@@ -47,7 +47,7 @@ export const CodeSearchTool = Tool.define("codesearch", {
       .max(50000)
       .default(5000)
       .describe(
-        "Number of tokens to return (1000-50000). Default is 5000 tokens. Adjust this value based on how much context you need - use lower values for focused queries and higher values for comprehensive documentation.",
+        "返回的 token 数量（1000–50000），默认 5000。按所需上下文调整：聚焦查询用较小值，全面文档用较大值。",
       ),
   }),
   async execute(params, ctx) {

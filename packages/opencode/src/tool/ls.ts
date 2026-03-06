@@ -38,8 +38,8 @@ const LIMIT = 100
 export const ListTool = Tool.define("list", {
   description: DESCRIPTION,
   parameters: z.object({
-    path: z.string().describe("The absolute path to the directory to list (must be absolute, not relative)").optional(),
-    ignore: z.array(z.string()).describe("List of glob patterns to ignore").optional(),
+    path: z.string().describe("要列出的目录的绝对路径（必须为绝对路径，不能为相对路径）").optional(),
+    ignore: z.array(z.string()).describe("要忽略的 glob 模式列表").optional(),
   }),
   async execute(params, ctx) {
     const searchPath = path.resolve(Instance.directory, params.path || ".")

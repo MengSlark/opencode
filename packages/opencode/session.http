@@ -98,8 +98,8 @@ Content-Type: application/json
 x-opencode-directory: {{projectDir}}
 
 {
-  "providerID": " OpenCode Zen",
-  "modelID": "Big Pickle"
+  "providerID": "opencode",
+  "modelID": "big-pickle"
 }
 
 ### Session: diff (requires messageID)

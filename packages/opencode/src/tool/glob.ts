@@ -9,12 +9,12 @@ import { assertExternalDirectory } from "./external-directory"
 export const GlobTool = Tool.define("glob", {
   description: DESCRIPTION,
   parameters: z.object({
-    pattern: z.string().describe("The glob pattern to match files against"),
+    pattern: z.string().describe("用于匹配文件的 glob 模式"),
     path: z
       .string()
       .optional()
       .describe(
-        `The directory to search in. If not specified, the current working directory will be used. IMPORTANT: Omit this field to use the default directory. DO NOT enter "undefined" or "null" - simply omit it for the default behavior. Must be a valid directory path if provided.`,
+        "要搜索的目录。未指定时使用当前工作目录。重要：使用默认目录时请省略本字段，不要填 \"undefined\" 或 \"null\"。若提供则必须为有效目录路径。",
       ),
   }),
   async execute(params, ctx) {

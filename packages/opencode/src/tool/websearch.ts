@@ -43,24 +43,24 @@ export const WebSearchTool = Tool.define("websearch", async () => {
       return DESCRIPTION.replace("{{date}}", new Date().toISOString().slice(0, 10))
     },
     parameters: z.object({
-      query: z.string().describe("Websearch query"),
-      numResults: z.number().optional().describe("Number of search results to return (default: 8)"),
+      query: z.string().describe("网页搜索查询"),
+      numResults: z.number().optional().describe("返回的搜索结果数量（默认 8）"),
       livecrawl: z
         .enum(["fallback", "preferred"])
         .optional()
         .describe(
-          "Live crawl mode - 'fallback': use live crawling as backup if cached content unavailable, 'preferred': prioritize live crawling (default: 'fallback')",
+          "实时抓取模式：'fallback' 在缓存不可用时作为备选，'preferred' 优先实时抓取（默认 'fallback'）",
         ),
       type: z
         .enum(["auto", "fast", "deep"])
         .optional()
         .describe(
-          "Search type - 'auto': balanced search (default), 'fast': quick results, 'deep': comprehensive search",
+          "搜索类型：'auto' 均衡（默认），'fast' 快速，'deep' 全面",
         ),
       contextMaxCharacters: z
         .number()
         .optional()
-        .describe("Maximum characters for context string optimized for LLMs (default: 10000)"),
+        .describe("面向 LLM 的上下文最大字符数（默认 10000）"),
     }),
     async execute(params, ctx) {
       await ctx.ask({

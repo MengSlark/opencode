@@ -286,7 +286,7 @@ export namespace Storage {
         glob.scan({
           cwd: path.join(dir, ...prefix),
           onlyFiles: true,
-        }),
+        }), 
       ).then((results) => results.map((x) => [...prefix, ...x.slice(0, -5).split(path.sep)]))
       result.sort()
       return result

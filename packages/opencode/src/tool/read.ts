@@ -17,9 +17,9 @@ const MAX_BYTES = 50 * 1024
 export const ReadTool = Tool.define("read", {
   description: DESCRIPTION,
   parameters: z.object({
-    filePath: z.string().describe("The path to the file to read"),
-    offset: z.coerce.number().describe("The line number to start reading from (0-based)").optional(),
-    limit: z.coerce.number().describe("The number of lines to read (defaults to 2000)").optional(),
+    filePath: z.string().describe("要读取的文件路径"),
+    offset: z.coerce.number().describe("起始行号（从 0 开始）").optional(),
+    limit: z.coerce.number().describe("读取行数（默认 2000）").optional(),
   }),
   async execute(params, ctx) {
     console.log("ReadTool called with params:")

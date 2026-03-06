@@ -6,7 +6,7 @@ import { Todo } from "../session/todo"
 export const TodoWriteTool = Tool.define("todowrite", {
   description: DESCRIPTION_WRITE,
   parameters: z.object({
-    todos: z.array(z.object(Todo.Info.shape)).describe("The updated todo list"),
+    todos: z.array(z.object(Todo.Info.shape)).describe("更新后的待办列表"),
   }),
   async execute(params, ctx) {
     await ctx.ask({
@@ -31,7 +31,7 @@ export const TodoWriteTool = Tool.define("todowrite", {
 })
 
 export const TodoReadTool = Tool.define("todoread", {
-  description: "Use this tool to read your todo list",
+  description: "使用本工具读取当前待办列表",
   parameters: z.object({}),
   async execute(_params, ctx) {
     await ctx.ask({

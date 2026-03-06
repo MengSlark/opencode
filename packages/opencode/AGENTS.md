@@ -1,27 +1,27 @@
-# opencode agent guidelines
+# OpenCode 代理指南
 
-## Build/Test Commands
+## 构建/测试命令
 
-- **Install**: `bun install`
-- **Run**: `bun run --conditions=browser ./src/index.ts`
-- **Typecheck**: `bun run typecheck` (npm run typecheck)
-- **Test**: `bun test` (runs all tests)
-- **Single test**: `bun test test/tool/tool.test.ts` (specific test file)
+- **安装**：`bun install`
+- **运行**：`bun run --conditions=browser ./src/index.ts`
+- **类型检查**：`bun run typecheck`（或 npm run typecheck）
+- **测试**：`bun test`（运行全部测试）
+- **单测**：`bun test test/tool/tool.test.ts`（指定测试文件）
 
-## Code Style
+## 代码风格
 
-- **Runtime**: Bun with TypeScript ESM modules
-- **Imports**: Use relative imports for local modules, named imports preferred
-- **Types**: Zod schemas for validation, TypeScript interfaces for structure
-- **Naming**: camelCase for variables/functions, PascalCase for classes/namespaces
-- **Error handling**: Use Result patterns, avoid throwing exceptions in tools
-- **File structure**: Namespace-based organization (e.g., `Tool.define()`, `Session.create()`)
+- **运行时**：Bun + TypeScript ESM 模块
+- **导入**：本地模块使用相对路径导入，优先使用具名导入
+- **类型**：用 Zod 做校验，用 TypeScript 接口描述结构
+- **命名**：变量/函数用 camelCase，类/命名空间用 PascalCase
+- **错误处理**：采用 Result 模式，在工具中避免抛出异常
+- **文件组织**：按命名空间组织（如 `Tool.define()`、`Session.create()`）
 
-## Architecture
+## 架构
 
-- **Tools**: Implement `Tool.Info` interface with `execute()` method
-- **Context**: Pass `sessionID` in tool context, use `App.provide()` for DI
-- **Validation**: All inputs validated with Zod schemas
-- **Logging**: Use `Log.create({ service: "name" })` pattern
-- **Storage**: Use `Storage` namespace for persistence
-- **API Client**: The TypeScript TUI (built with SolidJS + OpenTUI) communicates with the OpenCode server using `@opencode-ai/sdk`. When adding/modifying server endpoints in `packages/opencode/src/server/server.ts`, run `./script/generate.ts` to regenerate the SDK and related files.
+- **工具**：实现 `Tool.Info` 接口及 `execute()` 方法
+- **上下文**：在工具上下文中传入 `sessionID`，用 `App.provide()` 做依赖注入
+- **校验**：所有输入用 Zod schema 校验
+- **日志**：使用 `Log.create({ service: "name" })` 形式
+- **存储**：使用 `Storage` 命名空间做持久化
+- **API 客户端**：TypeScript TUI（基于 SolidJS + OpenTUI）通过 `@opencode-ai/sdk` 与 OpenCode 服务端通信。在 `packages/opencode/src/server/server.ts` 中新增或修改服务端接口后，需执行 `./script/generate.ts` 重新生成 SDK 及相关文件。

@@ -1,11 +1,11 @@
-Summarize what was done in this conversation. Write like a pull request description.
+用类似 Pull Request 描述的风格，总结本次会话中完成了什么。
 
-Rules:
-- 2-3 sentences max
-- Describe the changes made, not the process
-- Do not mention running tests, builds, or other validation steps
-- Do not explain what the user asked for
-- Write in first person (I added..., I fixed...)
-- Never ask questions or add new questions
-- If the conversation ends with an unanswered question to the user, preserve that exact question
-- If the conversation ends with an imperative statement or request to the user (e.g. "Now please run the command and paste the console output"), always include that exact request in the summary
+规则：
+- 最多 2–3 句
+- 描述做了哪些改动，不要描述过程
+- 不要提跑测试、构建或其他验证步骤
+- 不要复述用户问了什么
+- 用第一人称（我添加了…、我修复了…）
+- 不要提问或追加新问题
+- 若会话结束于一个尚未回答的用户问题，请在总结中保留该问题的原句
+- 若会话结束于对用户的祈使或请求（如「请运行该命令并把控制台输出贴上来」），请在总结中完整保留该请求

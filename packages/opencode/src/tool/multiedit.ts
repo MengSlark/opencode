@@ -8,17 +8,17 @@ import { Instance } from "../project/instance"
 export const MultiEditTool = Tool.define("multiedit", {
   description: DESCRIPTION,
   parameters: z.object({
-    filePath: z.string().describe("The absolute path to the file to modify"),
+    filePath: z.string().describe("要修改文件的绝对路径"),
     edits: z
       .array(
         z.object({
-          filePath: z.string().describe("The absolute path to the file to modify"),
-          oldString: z.string().describe("The text to replace"),
-          newString: z.string().describe("The text to replace it with (must be different from oldString)"),
-          replaceAll: z.boolean().optional().describe("Replace all occurrences of oldString (default false)"),
+          filePath: z.string().describe("要修改文件的绝对路径"),
+          oldString: z.string().describe("要被替换的文本"),
+          newString: z.string().describe("用于替换的文本（必须与 oldString 不同）"),
+          replaceAll: z.boolean().optional().describe("是否替换所有 oldString 出现处（默认 false）"),
         }),
       )
-      .describe("Array of edit operations to perform sequentially on the file"),
+      .describe("按顺序对该文件执行的编辑操作数组"),
   }),
   async execute(params, ctx) {
     const tool = await EditTool.init()

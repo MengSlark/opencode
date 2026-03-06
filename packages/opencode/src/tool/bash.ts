@@ -61,18 +61,18 @@ export const BashTool = Tool.define("bash", async () => {
       .replaceAll("${maxLines}", String(Truncate.MAX_LINES))
       .replaceAll("${maxBytes}", String(Truncate.MAX_BYTES)),
     parameters: z.object({
-      command: z.string().describe("The command to execute"),
-      timeout: z.number().describe("Optional timeout in milliseconds").optional(),
+      command: z.string().describe("要执行的命令"),
+      timeout: z.number().describe("超时时间（毫秒，可选）").optional(),
       workdir: z
         .string()
         .describe(
-          `The working directory to run the command in. Defaults to ${Instance.directory}. Use this instead of 'cd' commands.`,
+          `命令的工作目录，默认为 ${Instance.directory}。请用此参数代替在命令中使用 'cd'。`,
         )
         .optional(),
       description: z
         .string()
         .describe(
-          "Clear, concise description of what this command does in 5-10 words. Examples:\nInput: ls\nOutput: Lists files in current directory\n\nInput: git status\nOutput: Shows working tree status\n\nInput: npm install\nOutput: Installs package dependencies\n\nInput: mkdir foo\nOutput: Creates directory 'foo'",
+          "用 5–10 个词简要描述该命令在做什么。示例：\n输入: ls\n输出: 列出当前目录文件\n\n输入: git status\n输出: 显示工作区状态\n\n输入: npm install\n输出: 安装依赖\n\n输入: mkdir foo\n输出: 创建目录 foo",
         ),
     }),
     async execute(params, ctx) {

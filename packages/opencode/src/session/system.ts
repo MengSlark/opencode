@@ -30,13 +30,13 @@ export namespace SystemPrompt {
     const project = Instance.project
     return [
       [
-        `You are powered by the model named ${model.api.id}. The exact model ID is ${model.providerID}/${model.api.id}`,
-        `Here is some useful information about the environment you are running in:`,
+        `你当前使用的模型为 ${model.api.id}。完整模型 ID 为 ${model.providerID}/${model.api.id}`,
+        `以下是你运行环境的相关信息：`,
         `<env>`,
-        `  Working directory: ${Instance.directory}`,
-        `  Is directory a git repo: ${project.vcs === "git" ? "yes" : "no"}`,
-        `  Platform: ${process.platform}`,
-        `  Today's date: ${new Date().toDateString()}`,
+        `  工作目录：${Instance.directory}`,
+        `  当前目录是否为 git 仓库：${project.vcs === "git" ? "是" : "否"}`,
+        `  平台：${process.platform}`,
+        `  当前日期：${new Date().toDateString()}`,
         `</env>`,
         `<directories>`,
         `  ${
